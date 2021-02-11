@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>McCaul Stalking Program</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    </head>
+
+    <body>
+        <!--Content-->
+        <div class="container mt-3 mb-4">
+            <!--Title-->
+            <img src="https://cdn.pixabay.com/photo/2014/04/02/10/12/checkbox-303113__340.png" alt="Blue Checkmark" style='float:left;width:50px;height:50px; margin-right:15px;'><h1>Roll-Call <span class="text-primary">Vote Record</span> of Texas Representatives</h1>
+            <hr>
+
+            <!--Information-->
+            <p>This is a record of all Texas representatives in the US House of Representatives for their roll-call votes during the year 2021.</p>
+
+            <!--Rep List (Doesn't collapse idk why)-->
+            <!--(REFERENCE)https://getbootstrap.com/docs/5.0/components/accordion/-->
+            <div class="accordion mb-2" id="accordionExample">
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    List of Representatives
+                  </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample" aria-labelledby="headingOne">
+                  <div class="accordion-body">
+                    <table class="table">
+                    {% for i in range(ceil(representatives_display_list|length/5)) %}
+                    <tr>
+                    {% for j in range(5) %}
+                    <td>{{ representatives_display_list[i*5 + j] }}</td>
+                    {% endfor %}
+                    </tr>
+                    {% endfor %}
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!--Search Form-->
+            <div class="container mb-2">
+              <form action="/search" method="post">
+                <div>
+                  <label for="vote-record-search">Search Vote Record</label>
+                  <input type="text" name="vote-record-search" id="vote-record-search" list="datalistOptions" placeholder="Type to search..." required>
+                  <input type="submit" value="Search" class=" btn btn-primary">
+                  <!--(REFERENCE)https://getbootstrap.com/docs/5.0/forms/form-control/#datalists-->
+                  <datalist id="datalistOptions">
+                    {% for rep in representatives_key_list %}
+                    <option value="{{ rep }}">
+                    {% endfor %}
+                  </datalist>
+                </div>
+              </form>
+            </div>
+
+            <!--Search Error Message-->
+            <!--(REFERENCE)https://getbootstrap.com/docs/5.0/components/alerts/?-->
+            {% if error_message %}
+            <div class="alert alert-danger mt-2" role="alert">{{ error_message }}</div>
+            {% endif %}
+          
+            <!--Display Vote Record-->
+            {% if vote_result %}
+            <h1 class="mt-5 mb-2">Showing results for <span class="text-primary">{{ chosen_representative }}</span>...</h1>
+            {% for rollcall in vote_result %}
+            <!--(REFERENCE)https://getbootstrap.com/docs/5.0/components/alerts/?-->
+            <!--(REFERENCE)https://stackoverflow.com/questions/49226187/how-can-you-change-the-color-of-a-jinja2-entry-depending-on-some-condition-usi-->
+            <div {% if vote_result[rollcall][4] == "Yea" %} class="alert-success alert mt-2" {% elif vote_result[rollcall][4] == "Nay" %} class="alert-warning alert mt-2" {% elif vote_result[rollcall][4] == "Not Voting" %} class="alert-secondary alert mt-2" {% else %} class="alert-primary alert mt-2" {% endif %}  role="alert">
+              <h3 class="alert-heading mb-3">Rollcall {{ rollcall }}</h3>
+              <p><b>Name:</b> {{ vote_result[rollcall][0] }}</p>
+              <h1 style="float:right; margin-right:35px; margin-left:35px">Result: {{ vote_result[rollcall][4] }}</h1>
+              <p><b>Description:</b> {{ vote_result[rollcall][1] }}</p>
+              <p><b>Question:</b> {{ vote_result[rollcall][2] }}</p>
+              <p class="mb-0"><b>Date:</b> {{ vote_result[rollcall][3] }}</p>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+        <!--End Content-->
+    </body>
+</html>
